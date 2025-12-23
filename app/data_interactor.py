@@ -1,36 +1,45 @@
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class SqlManager:
     def __init__(self):
-        self.db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="123"
-        )
+        try:
+            self.db = mysql.connector.connect(
+                host = os.getenv('DB_HOST'),
+                user = os.getenv('DB_USER'),
+                password = os.getenv('DB_PASSWORD'),
+                database = os.getenv("DB_NAME")
+            )
+            print("connected to MySql database successfully")
+        except mysql.connector.error as err:
+            print(f"Error connecting to database: {err}")
 
-    def select(self, sql):
-        cursor = self.db.cursor()
-        cursor.execute(sql)
+    def select(self, query, params=()):
+        cursor = self.db.cursor(dictionary=True)
+        cursor.execute(query, params)
         response = cursor.fetchall()
+        cursor.close()
         return response
-    
-    def CUD_operations(self, sql):
-        mycursor = self.db.cursor()
-        mycursor.execute(sql)
+
+    def update(self, query, params=()):
+        cursor = self.db.cursor()
+        cursor.execute(query, params)
         self.db.commit()
+        cursor.close()
 
+    def insert(self, query, params=()):
+        cursor = self.db.cursor()
+        cursor.execute(query, params)
+        self.db.commit()
+        new_id = cursor.lastrowid
+        cursor.close()
+        return new_id
 
-    # def update(self, sql):
-    #     mycursor = self.db.cursor()
-    #     mycursor.execute(sql)
-    #     self.db.commit()
-
-    # def insert(self, sql):
-    #     mycursor = self.db.cursor()
-    #     mycursor.execute(sql)
-    #     self.db.commit()
-
-    # def delete(self, sql):
-    #     mycursor = self.db.cursor()
-    #     mycursor.execute(sql)
-    #     self.db.commit()
+    def delete(self, query, params=()):
+        cursor = self.db.cursor()
+        cursor.execute(query, params)
+        self.db.commit()
+        cursor.close()
