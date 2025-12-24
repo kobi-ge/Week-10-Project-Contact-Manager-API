@@ -1,21 +1,34 @@
 import mysql.connector
 import os
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
 class SqlManager:
     def __init__(self):
-        try:
-            self.db = mysql.connector.connect(
-                host = os.getenv('DB_HOST'),
-                user = os.getenv('DB_USER'),
-                password = os.getenv('DB_PASSWORD'),
-                database = os.getenv("DB_NAME")
-            )
-            print("connected to MySql database successfully")
-        except mysql.connector.Error as err:
-            print(f"Error connecting to database: {err}")
+        self.db = None
+        self.cursor = None
+        retries = 10
+        delay = 3
+
+        while retries > 0:
+            try:
+                self.db = mysql.connector.connect(
+                    host=os.getenv('DB_HOST'),
+                    port=os.getenv('DB_PORT'),
+                    user=os.getenv('DB_USER'),
+                    password=os.getenv('DB_PASSWORD'),
+                    database=os.getenv('DB_NAME')
+                )
+                self.cursor = self.db.cursor(dictionary=True)
+                print("Connected to database successfully")
+                return  
+            
+            except mysql.connector.Error as err:
+                print(f"Connection failed ({retries} retries left): {err}")
+                retries -= 1
+                time.sleep(delay)
 
     def select(self, query, params=()):
         cursor = self.db.cursor(dictionary=True)
