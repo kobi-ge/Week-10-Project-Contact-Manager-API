@@ -5,7 +5,7 @@ class Contact:
         self.last_name = last_name
         self.phone_number = phone_number
 
-    def convert_to_dict(self):
+    def to_dict(self):
         return {
                 "first_name": self.first_name, 
                 "last_name": self.last_name, 

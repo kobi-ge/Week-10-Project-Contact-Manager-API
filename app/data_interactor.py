@@ -14,7 +14,7 @@ class SqlManager:
                 database = os.getenv("DB_NAME")
             )
             print("connected to MySql database successfully")
-        except mysql.connector.error as err:
+        except mysql.connector.Error as err:
             print(f"Error connecting to database: {err}")
 
     def select(self, query, params=()):
